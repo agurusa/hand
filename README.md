@@ -10,7 +10,7 @@ This project is used to develop an animatronic hand.
 
 ## View
 1. Run using `./run.sh`. This will do the following:
-- Build the Docker image containing Ubuntu, ROS Melodic, and Gazebo
+- Build the Docker image containing Ubuntu, ROS Melodic, MoveIt and Gazebo
 - Name the build image `hand:1.0`
 - Stop and remove any containers with the name `hand`
 - Start a container at port `6080:80` named `hand` with the previously built image
