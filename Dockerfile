@@ -1,13 +1,24 @@
-# Kudos to DOROWU and BPINAYA for their amazing VNC 16.04 KDE image and ROS/Gazebo image
-FROM dorowu/ubuntu-desktop-lxde-vnc
+# Kudos to DOROWU and BPINAYA for their amazing VNC 16.04 KDE image and ROS/Gazebo image!
+FROM dorowu/ubuntu-desktop-lxde-vnc 
 LABEL maintainer "aarthi.gurusami@gmail.com"
 ENV ROS_DISTRO "melodic"
 
-# Copy meshes to Docker image
-COPY meshes /usr/local/meshes
+# Add github credentials
+ARG SSH_DEPLOY_KEY
+RUN apt-get update && apt install -y git
+RUN mkdir /root/.ssh/
+RUN echo "${SSH_DEPLOY_KEY}" > /root/.ssh/id_rsa
+RUN chmod 400 /root/.ssh/id_rsa
+RUN touch /root/.ssh/known_hosts
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+# Clone github repo
+RUN /bin/bash -c "mkdir -p ~/catkin_ws/src && \
+                 cd ~/catkin_ws/src &&\
+                 git clone git@github.com:agurusa/ROS-hand.git"
 
 # Adding keys for ROS
-RUN apt-get update && apt-get install -y dirmngr
+RUN apt-get install -y dirmngr
 RUN mkdir -p ~/.gnupg && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN sudo apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
@@ -20,7 +31,7 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 RUN echo "source ~/.bashrc"
 
 # Install ROS dependencies for package building
-RUN apt-get update && apt install -y python-rosdep \
+RUN apt install -y python-rosdep \
         python-rosinstall \
         python-rosinstall-generator \
         python-wstool \
@@ -37,11 +48,8 @@ RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 RUN apt-get update && apt-get install -y libgazebo11 gazebo11-common gazebo11
 RUN /bin/bash -c "echo 'export HOME=/home/ubuntu' >> /root/.bashrc && source /root/.bashrc"
 
-# Create catkin workspace and package
+# catkin make the hand ROSject
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
-                 mkdir -p ~/catkin_ws/src && \
-                 cd ~/catkin_ws/src &&\
-                 catkin_create_pkg hand std_msgs rospy roscpp && \
                  cd ~/catkin_ws && \
                  catkin_make &&\
                  source devel/setup.bash && \
