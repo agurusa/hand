@@ -27,7 +27,8 @@ RUN apt-get update && apt install -y python-rosdep \
         build-essential \
         python-rosdep \ 
         ros-${ROS_DISTRO}-moveit \
-        python-catkin-tools
+        python-catkin-tools \
+        ros-${ROS_DISTRO}-catkin
 RUN rosdep init && rosdep update
 
 # Update Gazebo 11
@@ -36,19 +37,14 @@ RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 RUN apt-get update && apt-get install -y libgazebo11 gazebo11-common gazebo11
 RUN /bin/bash -c "echo 'export HOME=/home/ubuntu' >> /root/.bashrc && source /root/.bashrc"
 
-
-# Download moviet tutorials
+# Create catkin workspace and package
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
-                  mkdir -p ~/ws_moveit/src && \
-                  cd ~/ws_moveit/src && \
-                  git clone https://github.com/ros-planning/moveit_tutorials.git -b ${ROS_DISTRO}-devel && \
-                  git clone https://github.com/ros-planning/panda_moveit_config.git -b ${ROS_DISTRO}-devel"
-                  
-# Set up catkin workspace and build. Beware! This can take a long time.
-RUN /bin/bash -c  "cd ~/ws_moveit/src && \
-                  rosdep install -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} && \
-                  cd ~/ws_moveit && \ 
-                  catkin config --extend /opt/ros/${ROS_DISTRO} --cmake-args -DCMAKE_BUILD_TYPE=Release && \ 
-                  catkin build -j1 --mem-limit 50% && \
-                  source ~/ws_moveit/devel/setup.bash && \
-                  echo 'source ~/ws_moveit/devel/setup.bash' >> ~/.bashrc"
+                 mkdir -p ~/catkin_ws/src && \
+                 cd ~/catkin_ws/src &&\
+                 catkin_create_pkg hand std_msgs rospy roscpp && \
+                 cd ~/catkin_ws && \
+                 catkin_make &&\
+                 source devel/setup.bash && \
+                 echo $ROS_PACKAGE_PATH ~/catkin_ws/src:/opt/ros/${ROS_DISTRO}/share &&\
+                 echo 'source ~/catkin_ws/devel/setup.bash' >> ~/.bashrc"
+

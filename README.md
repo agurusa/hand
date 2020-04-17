@@ -15,4 +15,8 @@ This project is used to develop an animatronic hand.
 - Stop and remove any containers with the name `hand`
 - Start a container at port `6080:80` named `hand` with the previously built image
 2. Connect by navigating to `http://localhost:6080/`
+3. Open a terminal window in Ubuntu
+4. Run `source ~/.bashrc`
+5. Run `roscore`
+
 
