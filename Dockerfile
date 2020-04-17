@@ -17,10 +17,6 @@ RUN /bin/bash -c "mkdir -p ~/catkin_ws/src && \
                  cd ~/catkin_ws/src &&\
                  git clone git@github.com:agurusa/ROS-hand.git"
 
-# Copy meshes to Docker image
-# todo: add these to the ROSject
-COPY meshes /usr/local/meshes
-
 # Adding keys for ROS
 RUN apt-get install -y dirmngr
 RUN mkdir -p ~/.gnupg && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
