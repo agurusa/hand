@@ -3,10 +3,6 @@ FROM dorowu/ubuntu-desktop-lxde-vnc
 LABEL maintainer "aarthi.gurusami@gmail.com"
 ENV ROS_DISTRO "melodic"
 
-# add credentials for github ease
-RUN mkdir /root/.ssh/
-RUN ssh-keyscan -H github.com >> /root/.ssh/id_rsa.pub
-
 # Copy meshes to Docker image
 COPY meshes /usr/local/meshes
 
