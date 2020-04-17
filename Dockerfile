@@ -3,6 +3,10 @@ FROM dorowu/ubuntu-desktop-lxde-vnc
 LABEL maintainer "aarthi.gurusami@gmail.com"
 ENV ROS_DISTRO "melodic"
 
+# add credentials for github ease
+RUN mkdir /root/.ssh/
+RUN ssh-keyscan -H github.com >> /root/.ssh/id_rsa.pub
+
 # Copy meshes to Docker image
 COPY meshes /usr/local/meshes
 
@@ -37,11 +41,11 @@ RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 RUN apt-get update && apt-get install -y libgazebo11 gazebo11-common gazebo11
 RUN /bin/bash -c "echo 'export HOME=/home/ubuntu' >> /root/.bashrc && source /root/.bashrc"
 
-# Create catkin workspace and package
+# Create catkin workspace and clone package
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
                  mkdir -p ~/catkin_ws/src && \
                  cd ~/catkin_ws/src &&\
-                 catkin_create_pkg hand std_msgs rospy roscpp && \
+                 git clone git@github.com:agurusa/ROS-hand.git &&\
                  cd ~/catkin_ws && \
                  catkin_make &&\
                  source devel/setup.bash && \
